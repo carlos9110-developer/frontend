@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>AdminLTE 3 | Modals & Alerts</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="public/fontawesome/css/all.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="public/bootstrap/bootstrap-4.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="public/toastr/toastr.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="public/css/adminlte.min.css">
+    <!-- Google Font: Source Sans Pro -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+</head>
+
+<body>
+
+</body>
+
+<!-- jQuery -->
+<script src="public/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="public/bootstrap/bootstrap.bundle.min.js"></script>
+<!-- SweetAlert2 -->
+<script src="public/sweetalert2/sweetalert2.min.js"></script>
+<!-- Toastr -->
+<script src="public/toastr/toastr.min.js"></script>
+<!-- AdminLTE App -->
+<script src="public/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="public/js/demo.js"></script>
+<script>
+    var objeto = {
+        "nombre": "Carlos Pechuga",
+        "precio": 50000,
+        "tipo": 1
+    };
+    $.ajax({
+        url: "http://www.apirest.890m.com/api/listarComidas",
+        type: "GET",
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        headers: {
+            "Authorization": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsIm5vbWJyZSI6IkNhcmxvcyBIaW5jYXBpZSIsInVzciI6ImNhcmxvc0Bob3RtYWlsLmNvbSIsImlhdCI6MTU3NjM2MzIzMSwiZXhwIjoxNTc2OTY4MDMxfQ.xaMGhqlH1ILvGB5DZbhZM8U1gBU7UKBfk7TJufBS_fM"
+        },
+        success: function(data) {
+            console.log(data);
+            console.log("respuesta", data);
+        },
+        error: function(error) {}
+    });
+
+    /*
+    $.ajax({
+        url: "http://www.apirest.890m.com/api/login",
+        type: "POST",
+        contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+        data: JSON.stringify(objeto),
+        success: function(data) {
+            console.log(data.token);
+            console.log("res", data);
+        },
+        error: function(error) {}
+    });
+    */
+</script>
+
+</html>
