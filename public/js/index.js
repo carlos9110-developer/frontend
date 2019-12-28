@@ -9,11 +9,11 @@ inicio();
 
 function login(e) {
     e.preventDefault(); //No se activará la acción predeterminada del evento
-    let email = $("#email").val();
+    let usuario = $("#email").val();
     let clave = $("#clave").val();
-    let objeto = { "email": email, "password": clave };
+    let objeto = { "usuario": usuario, "password": clave };
     $.ajax({
-        url: "http://www.apirest.890m.com/api/login",
+        url: Funciones.nombreUrl() + "login",
         type: "POST",
         data: objeto,
         dataType: 'json',
@@ -25,8 +25,8 @@ function login(e) {
                 if (typeof(Storage) !== "undefined") {
                     localStorage.setItem("usuario", JSON.stringify(datos));
                     let usuario = JSON.parse(localStorage.getItem("usuario"));
-                    if (usuario.rol == 2) {
-                        window.location.href = "asesor.html";
+                    if (usuario.rol == 1) {
+                        window.location.href = "administrador";
                     } else {
                         window.location.href = "cajero.html";
                     }

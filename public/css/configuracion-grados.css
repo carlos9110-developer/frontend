@@ -1,0 +1,107 @@
+.btn-grados,
+.btn-abrir-registrar-materia {
+    width: 100%;
+    margin-top: 5px;
+}
+
+.btn-abrir-editar-materias {
+    margin-top: 5px;
+}
+
+.btn-group-materias {
+    width: 100%;
+}
+
+.btn-periodos {
+    widows: 100%;
+}
+
+.btn-materias {
+    width: 80%;
+    margin-top: 5px;
+}
+
+.btn-periodos {
+    width: 100%;
+}
+
+.div-periodos {
+    display: none;
+}
+
+.div-informe {
+    display: none;
+}
+
+#card_info_1,
+#card_info_2,
+#card_info_3,
+#card_info_4 {
+    display: none;
+}
+
+
+/** estilos para el modal de cargando */
+
+.modal-cargando {
+    z-index: 7000 !important;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.box-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150px;
+    height: 150px;
+    opacity: 1.5 !important;
+}
+
+.box-loading>div {
+    position: absolute;
+    top: 50%;
+    text-align: center;
+    width: 100%;
+}
+
+.box-loading img {
+    margin-top: 35px;
+}
+
+.loader {
+    width: calc(100% - 0px);
+    height: calc(100% - 0px);
+    border: 8px solid transparent;
+    border-top: 8px solid #767779;
+    border-bottom: 8px solid #767779;
+    border-radius: 100%;
+    animation: rotate 5s linear infinite;
+}
+
+.loader-1 {
+    width: calc(100% - 0px);
+    height: calc(100% - 0px);
+    border: 8px solid #ffd600;
+    border-radius: 100%;
+    animation: rotate 5s linear infinite;
+}
+
+.loader-2 {
+    width: calc(100% - 0px);
+    height: calc(100% - 0px);
+    border: 8px solid transparent;
+    border-top: 8px solid #767779;
+    border-bottom: 8px solid #767779;
+    border-radius: 100%;
+    animation: rotate 1s linear infinite reverse;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

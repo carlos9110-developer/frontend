@@ -10,14 +10,29 @@ var Funciones = function() {
         },
         bienvenido: function() {
             let usuario = JSON.parse(localStorage.getItem("usuario"));
-            if (usuario.rol == 1) {
-                $(".texto-bienvenida").html("Bienvenido cajero <br/>" + usuario.nombre);
+            $("#texto-nombre-usuario").text(usuario.nombre + " " + usuario.apellidos);
+        },
+        verificarToken: function() {
+            let usuario = JSON.parse(localStorage.getItem("usuario"));
+            if (usuario != null) {
+                $.ajax({
+                    url: "http://127.0.0.1:8000/api/VerificarToken",
+                    type: "GET",
+                    dataType: 'json',
+                    headers: { "Authorization": usuario.token },
+                    beforeSend: function() {},
+
+                    success: function(datos) {
+                        return datos.success;
+                    },
+                    error: function() {}
+                });
             } else {
-                $(".texto-bienvenida").html("Bienvenido asesor <br/>" + usuario.nombre);
+                return false;
             }
         },
-        salir: function() {
-            window.location.href = "index.html";
+        nombreUrl: function() {
+            return "http://127.0.0.1:8000/api/";
         }
     }
 }();
