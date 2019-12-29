@@ -31,6 +31,10 @@ var Funciones = function() {
                 return false;
             }
         },
+        expiracion: function() {
+            alertify.notify('Error, La sesión ha expirado', 'error', 8);
+            setInterval(function() { window.location.href = "index"; }, 3000);
+        },
         nombreUrl: function() {
             return "http://127.0.0.1:8000/api/";
         }

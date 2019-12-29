@@ -7,17 +7,23 @@ var arrayPeriodos = [];
 var arrayFechasInicio = [];
 var arrayFechasFinal = [];
 var arrayPorcentajes = [];
+var usuario;
 
 function inicio() {
     Funciones.abrirModalCargando();
     if (Funciones.verificarToken() == false) {
+        Funciones.cerrarModalCargando();
+        alertify.notify('Error, No tiene permisos para utilizar la plataforma', 'error', 8);
         setInterval(function() { window.location.href = "index"; }, 3000);
-        alertify.notify('Error, Error no tiene permisos para utilizar la plataforma', 'error', 8);
+    } else {
+        usuario = JSON.parse(localStorage.getItem("usuario"));
+        Funciones.bienvenido();
+        traerGradosColegio();
+        Funciones.cerrarModalCargando();
+        traerMateriasColegio(1);
+        prevent_submit_form();
+        traerAreas();
     }
-    traerGradosColegio();
-    Funciones.cerrarModalCargando();
-    traerMateriasColegio(1);
-    prevent_submit_form();
 }
 inicio();
 
@@ -95,36 +101,61 @@ function cambioFecha2(guia, fecha) {
     }
 }
 
+// función donde se traen las areas de la base de datos
+function traerAreas() {
+    $.ajax({
+        url: Funciones.nombreUrl() + "traer-areas",
+        type: "GET",
+        dataType: 'json',
+        headers: { "Authorization": usuario.token },
+        beforeSend: function() {},
+        success: function(datos) {
+            $.each(datos, function(indice, valor) {
+                let html = '';
+                html += '<option value="' + valor.id + '">' + valor.area + '</option>';
+                $("#selectAreasMaterias").append(html);
+            });
+        },
+        error: function() {
+            window.location.href = "index";
+        }
+    });
+}
+
 // función donde se guardar una determinada materia
 function guardarMateria(e) {
     e.preventDefault(); //No se activará la acción predeterminada del evento
-    var datos_formulario = new FormData($("#formRegistroMaterias")[0]);
+    var objeto = {
+        "accion": $("#id_registrar_materias").val(),
+        "materia": $("#inputNombreMateria").val(),
+        "area": $("#selectAreasMaterias").val()
+    };
     $.ajax({
-        url: "registrar-editar-materia",
+        url: Funciones.nombreUrl() + "registrar-editar-materia",
         type: "POST",
-        data: datos_formulario,
-        contentType: false,
-        processData: false,
+        data: objeto,
+        dataType: 'json',
+        headers: { "Authorization": usuario.token },
         beforeSend: function() {
             $('#div-contiene-submit-modalRegistroMaterias').html('<button  class="btn btn-info btn-lg" type="button"><i class="fa fa-spinner fa-spin"></i> <b>Validando Información</b></button>');
         },
         success: function(respuesta) {
             if (respuesta.success == true) {
                 cerrarModalRegistroMaterias();
-                Biblioteca.notificaciones(respuesta.msg, 'Edusoft', 'success');
+                alertify.notify(respuesta.msg, 'success', 8);
                 if (gradoSeleccionado == 0) {
                     traerMateriasColegio(1);
                 } else {
                     traerMateriasColegio(2);
-                    traerMateriasGrado();
+                    //traerMateriasGrado();// esta falta
                 }
             } else {
-                Biblioteca.notificaciones(respuesta.msg, 'Edusoft', 'error');
+                alertify.notify(respuesta.msg, 'error', 8);
             }
             verificarAccionTomarInfoModal();
         },
         error: function(error) {
-            Biblioteca.notificaciones('ocurrio un error al realizar el registro, por favor intentelo de nuevo', 'Edusoft', 'error');
+            alertify.notify('ocurrio un error al realizar el registro, por favor intentelo de nuevo', 'error', 8);
             verificarAccionTomarInfoModal();
         }
     });
@@ -142,13 +173,23 @@ function verificarAccionTomarInfoModal() {
 // function donde se traen los grados del colegio
 function traerGradosColegio() {
     totalGrados = 0;
-    $.get("traer-grados", function(datos) {
-        $.each(datos, function(indice, valor) {
-            let html = '';
-            html += '<button title="Seleccione el grado" id="btn-' + valor.id + '" class="btn btn-grados btn-outline-primary" onclick="seleccionGrado(' + valor.id + ',`' + valor.grado + '`)" >' + valor.grado + '</button>';
-            $("#div-listar-grados").append(html);
-            totalGrados++;
-        });
+    $.ajax({
+        url: Funciones.nombreUrl() + "traer-grados",
+        type: "GET",
+        dataType: 'json',
+        headers: { "Authorization": usuario.token },
+        beforeSend: function() {},
+        success: function(datos) {
+            $.each(datos, function(indice, valor) {
+                let html = '';
+                html += '<button title="Seleccione el grado" id="btn-' + valor.id + '" class="btn btn-grados btn-outline-primary" onclick="seleccionGrado(' + valor.id + ',`' + valor.grado + '`)" >' + valor.grado + '</button>';
+                $("#div-listar-grados").append(html);
+                totalGrados++;
+            });
+        },
+        error: function() {
+            window.location.href = "index";
+        }
     });
 }
 
@@ -158,33 +199,43 @@ function traerMateriasColegio(guia) {
     $("#div-listar-materias-2").html('');
     $("#div-listar-materias-3").html('');
     totalMaterias = 0;
-    $.get("traer-materias", function(datos) {
-        let cont = 1;
-        $.each(datos, function(indice, valor) {
-            let html = '';
-            html += '<div  class="btn-group btn-group-materias">' +
-                '<button title="Debe seleccionar primero el grado"  disabled id="btn-materias-' + valor.id + '" class="btn btn-materias btn-outline-secondary" onclick="seleccionMateria(' + valor.id + ',`' + valor.materia + '`)" ><b>' + valor.materia + '</b></button>' +
-                '<button title="Editar Información"  class="btn btn-outline-warning btn-abrir-editar-materias" onclick="editarMateria(' + valor.id + ')" ><i class="fas fa-edit"></i></button>' +
-                '</div>';
-            if (cont <= 18) {
-                $("#div-listar-materias-1").append(html);
-            } else if (cont > 18 && cont <= 36) {
-                $("#div-listar-materias-2").append(html);
-            } else if (cont > 36 && cont <= 54) {
-                $("#div-listar-materias-3").append(html);
+    $.ajax({
+        url: Funciones.nombreUrl() + "traer-materias",
+        type: "GET",
+        dataType: 'json',
+        headers: { "Authorization": usuario.token },
+        beforeSend: function() {},
+        success: function(datos) {
+            let cont = 1;
+            $.each(datos, function(indice, valor) {
+                let html = '';
+                html += '<div  class="btn-group btn-group-materias">' +
+                    '<button title="Debe seleccionar primero el grado"  disabled id="btn-materias-' + valor.id + '" class="btn btn-materias btn-outline-secondary" onclick="seleccionMateria(' + valor.id + ',`' + valor.materia + '`)" ><b>' + valor.materia + '</b></button>' +
+                    '<button title="Editar Información"  class="btn btn-outline-warning btn-abrir-editar-materias" onclick="editarMateria(' + valor.id + ')" ><i class="fas fa-edit"></i></button>' +
+                    '</div>';
+                if (cont <= 18) {
+                    $("#div-listar-materias-1").append(html);
+                } else if (cont > 18 && cont <= 36) {
+                    $("#div-listar-materias-2").append(html);
+                } else if (cont > 36 && cont <= 54) {
+                    $("#div-listar-materias-3").append(html);
+                }
+                totalMaterias++;
+                cont++;
+            });
+            if (cont <= 17) {
+                $("#div-listar-materias-1").append('<button  onclick="abrirGuardarMateria()" class="btn btn-abrir-registrar-materia btn-success"> <b>Registrar Materia</b></button>');
+            } else if (cont > 17 && cont <= 35) {
+                $("#div-listar-materias-2").append('<button  onclick="abrirGuardarMateria()" class="btn btn-abrir-registrar-materia btn-success"> <b>Registrar Materia</b></button>');
+            } else if (cont > 35 && cont <= 53) {
+                $("#div-listar-materias-3").append('<button  onclick="abrirGuardarMateria()" class="btn btn-abrir-registrar-materias btn-success"> <b>Registrar Materia</b></button>');
             }
-            totalMaterias++;
-            cont++;
-        });
-        if (cont <= 17) {
-            $("#div-listar-materias-1").append('<button  onclick="abrirGuardarMateria()" class="btn btn-abrir-registrar-materia btn-success"> <b>Registrar Materia</b></button>');
-        } else if (cont > 17 && cont <= 35) {
-            $("#div-listar-materias-2").append('<button  onclick="abrirGuardarMateria()" class="btn btn-abrir-registrar-materia btn-success"> <b>Registrar Materia</b></button>');
-        } else if (cont > 35 && cont <= 53) {
-            $("#div-listar-materias-3").append('<button  onclick="abrirGuardarMateria()" class="btn btn-abrir-registrar-materias btn-success"> <b>Registrar Materia</b></button>');
-        }
-        if (guia != 1) {
-            quitarDisabledMaterias();
+            if (guia != 1) {
+                quitarDisabledMaterias();
+            }
+        },
+        error: function() {
+            window.location.href = "index";
         }
     });
 }
@@ -435,18 +486,7 @@ function guardarMaterias() {
 
 /** FINAL FUNCIONES QUE SE ACTIVAN CON EL BOTÓN DE GUARDAR **/
 
-/** FUNCIONES PARA ACTIVAR Y DESACTIVAR EL MODAL CARGANDO **/
-function cerrarModalCargando() {
-    setTimeout(function() {
-        $("#cargando").modal("hide");
-    }, 1000);
-}
 
-function abrirModalCargando() {
-    $("#cargando").modal("show");
-}
-
-/** FINAL FUNCIONES PARA ACTIVAR Y DESACTIVAR EL MODAL CARGANDO **/
 
 // función para abrir el modal para registrar una materia las materias
 function abrirGuardarMateria() {
@@ -468,9 +508,23 @@ function cambiarInfoModal(guia) {
 function editarMateria(id) {
     $("#modalRegistroMaterias").modal("show");
     $("#id_registrar_materias").val(id);
-    $.get("traer-info-materia", { id: id }, function(datos) {
-        $("#inputNombreMateria").val(datos.materia);
-        $("#selectAreasMaterias").val(datos.id_area);
+    let objeto = { "id": id };
+    $.ajax({
+        url: Funciones.nombreUrl() + "traer-info-materia",
+        type: "GET",
+        data: objeto,
+        dataType: 'json',
+        headers: { "Authorization": usuario.token },
+        beforeSend: function() { Funciones.abrirModalCargando(); },
+        success: function(datos) {
+            $("#inputNombreMateria").val(datos.materia);
+            $("#selectAreasMaterias").val(datos.id_area);
+            Funciones.cerrarModalCargando();
+        },
+        error: function() {
+            Funciones.cerrarModalCargando();
+            Funciones.expiracion();
+        }
     });
     cambiarInfoModal(2);
 }
